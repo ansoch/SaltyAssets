@@ -72,7 +72,11 @@ public class Player : MonoBehaviour
             rb.AddForce(transform.up * jumpForse, ForceMode2D.Impulse);
             anim.Play("Jump3");
         }
-        Flip();
+        if (Input.GetButtonDown("Fire1"))
+        {
+            anim.Play("AttackingCatana");
+        }
+            Flip();
     }
 }
 
