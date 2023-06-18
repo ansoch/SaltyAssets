@@ -26,7 +26,7 @@ public class TestAttack : MonoBehaviour
         {
             if(Input.GetButtonDown("Fire1"))
             {
-                anim.Play("AttackCatana");
+                anim.SetTrigger("IsAttacking");
                 Collider2D[] enemies = Physics2D.OverlapCircleAll(AttackPoint.position, AttackRange,DamagableLayerMask);
                 if (enemies.Length != 0)
                 {

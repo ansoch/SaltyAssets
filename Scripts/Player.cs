@@ -1,27 +1,35 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    Animator anim;
+    public Animator Anim { get; private set; }
+
     public float speed;
     public float jumpForse;
-    public Rigidbody2D rb;
+    public Rigidbody2D rb { get; private set; }
     public Transform groundCheck;
     public LayerMask WhatIsGround;
     public float radiusGroundCheck;
-    private bool isGrounded = true;
+    public bool IsGrounded { get; private set; } = true;
     private float signPreviousFrame;
     private float signCurrentFrame;
     private Vector3 _leftFlip = new Vector3(0, 180, 0);
-    private bool isJumping = false;
     private Inventory inventory;
     [SerializeField] private UI_Inventory uiInventory;
+
+    private bool _isJumping = false;
+    private bool _isRunning = false;
+    private bool _isAttacking = false;
+
+    private IPlayerState _playerState = new IdlePlayerState();
     // Start is called before the first frame update
     void Start()
     {
-        anim = GetComponent<Animator>();
+        Anim = GetComponent<Animator>();
+        rb = GetComponent<Rigidbody2D>();
         rb.drag = 0f;
         rb.angularDrag = 0f;
         inventory = new Inventory();
@@ -48,35 +56,104 @@ public class Player : MonoBehaviour
     }
     private void Flip()
     {
-        if (rb.velocity.x < 0)
-            transform.rotation = Quaternion.Euler(_leftFlip);
-        else if (rb.velocity.x > 0)
+        if (Input.GetKey(KeyCode.A))
             transform.rotation = Quaternion.Euler(Vector3.zero);
+        else if (Input.GetKey(KeyCode.D))
+            transform.rotation = Quaternion.Euler(_leftFlip);
     }
     // Update is called once per frame
     void Update()
     {
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, radiusGroundCheck, WhatIsGround);
         if (Input.GetKey(KeyCode.D))
         {
             rb.velocity = new Vector2(speed, rb.velocity.y);
-            anim.Play("Running");
         }
         if (Input.GetKey(KeyCode.A))
         {
             rb.velocity = new Vector2(-speed, rb.velocity.y);
-            anim.Play("Running");
         }
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        if (Input.GetKeyDown(KeyCode.Space) && IsGrounded)
         {
             rb.AddForce(transform.up * jumpForse, ForceMode2D.Impulse);
-            anim.Play("Jump3");
+            Anim.SetTrigger("IsJumping");
         }
         if (Input.GetButtonDown("Fire1"))
         {
-            anim.Play("AttackingCatana");
+            //Anim.Play("AttackingCatana");
+            Anim.SetTrigger("IsAttacking");
         }
-            Flip();
+        
+        Flip();
+        //_playerState = _playerState.UpdateState(this);
+    }
+    private void FixedUpdate()
+    {
+        IsGrounded = Physics2D.OverlapCircle(groundCheck.position, radiusGroundCheck, WhatIsGround);
+        Anim.SetFloat("SpeedX", Math.Abs(rb.velocity.x));
+        Anim.SetBool("IsRunning", Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.A));
     }
 }
 
+interface IPlayerState
+{
+    IPlayerState UpdateState(Player player);
+}
+
+class IdlePlayerState : IPlayerState
+{
+    public IPlayerState UpdateState(Player player)
+    {
+        if (Input.GetKey(KeyCode.D)) return new RunningPlayerState();
+        if (Input.GetKey(KeyCode.A)) return new RunningPlayerState();
+        if (Input.GetKeyDown(KeyCode.Space) && player.IsGrounded) return new JumpingPlayerState();
+        if (Input.GetButtonDown("Fire1")) return new AttackingPlayerState();
+        return this;
+    }
+}
+class RunningPlayerState : IPlayerState
+{
+    public IPlayerState UpdateState(Player player)
+    {
+        player.Anim.Play("run_side");
+        if (Input.GetKeyDown(KeyCode.Space) && player.IsGrounded) return new JumpingPlayerState();
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            player.rb.velocity = new Vector2(-player.speed, player.rb.velocity.y);
+            return new RunningPlayerState();
+        }
+        if (Input.GetKey(KeyCode.D))
+        {
+            player.rb.velocity = new Vector2(player.speed, player.rb.velocity.y);
+            return new RunningPlayerState();
+        }
+        
+        return new IdlePlayerState();
+    } 
+}
+class JumpingPlayerState : IPlayerState
+{
+    public IPlayerState UpdateState(Player player)
+    {
+        player.Anim.Play("jump_side");
+        player.rb.AddForce(player.transform.up * player.jumpForse, ForceMode2D.Impulse);
+        return new AirbornePlayerState();
+    }
+}
+class AirbornePlayerState : IPlayerState
+{
+    public IPlayerState UpdateState(Player player)
+    {
+        if(player.IsGrounded) return new IdlePlayerState();
+        if((Input.GetKey(KeyCode.D))) player.rb.velocity = new Vector2(player.speed, player.rb.velocity.y);
+        if (Input.GetKeyDown(KeyCode.A)) player.rb.velocity = new Vector2(-player.speed, player.rb.velocity.y);
+        return new AirbornePlayerState();
+    }
+}
+class AttackingPlayerState : IPlayerState
+{
+    public IPlayerState UpdateState(Player player)
+    {
+        player.Anim.Play("sword_side");
+        return new IdlePlayerState();
+    }
+}
