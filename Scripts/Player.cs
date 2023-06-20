@@ -75,6 +75,7 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space) && IsGrounded)
         {
             rb.AddForce(transform.up * jumpForse, ForceMode2D.Impulse);
+            //Anim.Play("jump_side");
             Anim.SetTrigger("IsJumping");
         }
         if (Input.GetButtonDown("Fire1"))
@@ -91,6 +92,7 @@ public class Player : MonoBehaviour
         IsGrounded = Physics2D.OverlapCircle(groundCheck.position, radiusGroundCheck, WhatIsGround);
         Anim.SetFloat("SpeedX", Math.Abs(rb.velocity.x));
         Anim.SetBool("IsRunning", Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.A));
+        Anim.SetBool("IsGrounded", IsGrounded);
     }
 }
 
