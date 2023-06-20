@@ -10,6 +10,8 @@ public class TestAttack : MonoBehaviour
     public float AttackRange;
     public float TimeBtwAttack;
     private float timer;
+
+    private AnimatorStateInfo stateInfo;
     Animator anim;
     private void OnDrawGizmosSelected()
     {
@@ -22,7 +24,7 @@ public class TestAttack : MonoBehaviour
     }
     private void Attack()
     {
-        if(timer <= 0)
+        if(!stateInfo.IsName("weapon_sword_side"))
         {
             if(Input.GetButtonDown("Fire1"))
             {
@@ -36,12 +38,6 @@ public class TestAttack : MonoBehaviour
                     }
                 }
             }
-            
-            timer = 0;
-        }
-        else
-        {
-            timer -= Time.deltaTime;
         }
     }
     private void GetReferences()
@@ -50,6 +46,11 @@ public class TestAttack : MonoBehaviour
     }
     private void Update()
     {
+        stateInfo = anim.GetCurrentAnimatorStateInfo(0);
         Attack();
+    }
+    private void FixedUpdate()
+    {
+        
     }
 }

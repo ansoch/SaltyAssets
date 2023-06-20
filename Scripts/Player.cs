@@ -64,27 +64,32 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey(KeyCode.D))
+        AnimatorStateInfo stateInfo = Anim.GetCurrentAnimatorStateInfo(0);
+
+        if (!stateInfo.IsName("sword_side"))
         {
-            rb.velocity = new Vector2(speed, rb.velocity.y);
+            if (Input.GetKey(KeyCode.D))
+            {
+                rb.velocity = new Vector2(speed, rb.velocity.y);
+            }
+            if (Input.GetKey(KeyCode.A))
+            {
+                rb.velocity = new Vector2(-speed, rb.velocity.y);
+            }
+            if (Input.GetKeyDown(KeyCode.Space) && IsGrounded)
+            {
+                rb.AddForce(transform.up * jumpForse, ForceMode2D.Impulse);
+                //Anim.Play("jump_side");
+                Anim.SetTrigger("IsJumping");
+            }
+            if (Input.GetButtonDown("Fire1"))
+            {
+                //Anim.Play("AttackingCatana");
+                rb.velocity = Vector2.zero;
+                Anim.SetTrigger("IsAttacking");
+            }
+            Flip();
         }
-        if (Input.GetKey(KeyCode.A))
-        {
-            rb.velocity = new Vector2(-speed, rb.velocity.y);
-        }
-        if (Input.GetKeyDown(KeyCode.Space) && IsGrounded)
-        {
-            rb.AddForce(transform.up * jumpForse, ForceMode2D.Impulse);
-            //Anim.Play("jump_side");
-            Anim.SetTrigger("IsJumping");
-        }
-        if (Input.GetButtonDown("Fire1"))
-        {
-            //Anim.Play("AttackingCatana");
-            Anim.SetTrigger("IsAttacking");
-        }
-        
-        Flip();
         //_playerState = _playerState.UpdateState(this);
     }
     private void FixedUpdate()
