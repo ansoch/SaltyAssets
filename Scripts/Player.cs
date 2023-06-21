@@ -24,6 +24,8 @@ public class Player : MonoBehaviour
     private bool _isRunning = false;
     private bool _isAttacking = false;
 
+    private float _facingRight = -1;
+
     private IPlayerState _playerState = new IdlePlayerState();
     // Start is called before the first frame update
     void Start()
@@ -71,10 +73,12 @@ public class Player : MonoBehaviour
             if (Input.GetKey(KeyCode.D))
             {
                 rb.velocity = new Vector2(speed, rb.velocity.y);
+                _facingRight = 1f;
             }
             if (Input.GetKey(KeyCode.A))
             {
                 rb.velocity = new Vector2(-speed, rb.velocity.y);
+                _facingRight = -1f;
             }
             if (Input.GetKeyDown(KeyCode.Space) && IsGrounded)
             {
@@ -85,7 +89,7 @@ public class Player : MonoBehaviour
             if (Input.GetButtonDown("Fire1"))
             {
                 //Anim.Play("AttackingCatana");
-                rb.velocity = new Vector2(0, rb.velocity.y);
+                rb.velocity = new Vector2(speed*_facingRight*0.75f, rb.velocity.y);
                 Anim.SetTrigger("IsAttacking");
             }
             Flip();
