@@ -428,7 +428,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hp: 10
-  speed: -1
+  speed: 0
 --- !u!114 &556661524
 MonoBehaviour:
   m_ObjectHideFlags: 0
