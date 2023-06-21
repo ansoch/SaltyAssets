@@ -17,5 +17,4 @@ public class DamagebleObject : MonoBehaviour
     {
         Destroy(gameObject);
     }
-    
 }

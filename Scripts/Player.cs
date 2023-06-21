@@ -1,170 +1,135 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    public Animator Anim { get; private set; }
+    [SerializeField] private float hp = 100f;
+    [SerializeField] private float balance = 100f;
+
+    [SerializeField] private float balanceHealTime = 6;
+    [SerializeField] private bool isTimer = false;
+
+    [SerializeField] private float stunTime = 4;
+    [SerializeField] private bool isStuned = false;
+
+    [SerializeField] private float poisonTime = 0;
+    [SerializeField] private float poisonDamage = 0.01f;
 
     public float speed;
     public float jumpForse;
-    public Rigidbody2D rb { get; private set; }
+    public Rigidbody2D rb;
     public Transform groundCheck;
     public LayerMask WhatIsGround;
     public float radiusGroundCheck;
-    public bool IsGrounded { get; private set; } = true;
+    private bool isGrounded = true;
     private float signPreviousFrame;
     private float signCurrentFrame;
     private Vector3 _leftFlip = new Vector3(0, 180, 0);
-    private Inventory inventory;
-    [SerializeField] private UI_Inventory uiInventory;
-
-    private bool _isJumping = false;
-    private bool _isRunning = false;
-    private bool _isAttacking = false;
-
-    private float _facingRight = -1;
-
-    private IPlayerState _playerState = new IdlePlayerState();
+    private bool isJumping = false;
     // Start is called before the first frame update
     void Start()
     {
-        Anim = GetComponent<Animator>();
-        rb = GetComponent<Rigidbody2D>();
         rb.drag = 0f;
         rb.angularDrag = 0f;
-        inventory = new Inventory();
-        uiInventory.SetPlayer(this);
-        uiInventory.SetInventory(inventory);
-    }
-
-    private void OnTriggerStay2D(Collider2D collision)
-    {
-        ItemWorld itemWorld = collision.GetComponent<ItemWorld>();
-        if (itemWorld != null && Input.GetKey(KeyCode.E))
-        {
-            if (inventory.GetItemList().Count < 8)
-            {
-
-                inventory.AddItem(itemWorld.GetItem());
-                itemWorld.DestroySelf();
-            }
-        }
-    }
-    public Vector3 GetPosition()
-    {
-        return transform.position;
     }
     private void Flip()
     {
-        if (Input.GetKey(KeyCode.A))
-            transform.rotation = Quaternion.Euler(Vector3.zero);
-        else if (Input.GetKey(KeyCode.D))
+        if (rb.velocity.x < 0)
             transform.rotation = Quaternion.Euler(_leftFlip);
+        else if (rb.velocity.x > 0)
+            transform.rotation = Quaternion.Euler(Vector3.zero);
     }
     // Update is called once per frame
     void Update()
     {
-        AnimatorStateInfo stateInfo = Anim.GetCurrentAnimatorStateInfo(0);
-
-        if (!stateInfo.IsName("sword_side"))
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, radiusGroundCheck, WhatIsGround);
+        if(isStuned == true)
         {
+            stunTime -= Time.deltaTime;
+            balance = 100f;
+            if (stunTime <= 0)
+            {
+                isStuned = false;
+                stunTime = 4;
+            }
+        }
+        else
+        {
+            if (isTimer == true)
+            {
+                balanceHealTime -= Time.deltaTime;
+                if (balanceHealTime <= 0)
+                {
+                    balance = 100f;
+                    isTimer = false;
+                }
+            }
             if (Input.GetKey(KeyCode.D))
             {
                 rb.velocity = new Vector2(speed, rb.velocity.y);
-                _facingRight = 1f;
             }
             if (Input.GetKey(KeyCode.A))
             {
                 rb.velocity = new Vector2(-speed, rb.velocity.y);
-                _facingRight = -1f;
             }
-            if (Input.GetKeyDown(KeyCode.Space) && IsGrounded)
+            if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
             {
                 rb.AddForce(transform.up * jumpForse, ForceMode2D.Impulse);
-                //Anim.Play("jump_side");
-                Anim.SetTrigger("IsJumping");
             }
-            if (Input.GetButtonDown("Fire1"))
-            {
-                //Anim.Play("AttackingCatana");
-                rb.velocity = new Vector2(speed*_facingRight*0.75f, rb.velocity.y);
-                Anim.SetTrigger("IsAttacking");
-            }
-            Flip();
         }
-        //_playerState = _playerState.UpdateState(this);
+        GetDamageByPoison();
+        Flip();
     }
-    private void FixedUpdate()
+
+    public void TakeDamage(float hpDamage, float balanceDamage)
     {
-        IsGrounded = Physics2D.OverlapCircle(groundCheck.position, radiusGroundCheck, WhatIsGround);
-        Anim.SetFloat("SpeedX", Math.Abs(rb.velocity.x));
-        Anim.SetBool("IsRunning", Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.A));
-        Anim.SetBool("IsGrounded", IsGrounded);
+        hp -= hpDamage;
+        balance -= balanceDamage;
+        balanceHealTime = 6;
+        isTimer = true;
+        if (hp == 0)
+        {
+            Die();
+        }
+        if(balance == 0)
+        {
+            isTimer = false;
+            isStuned = true;
+        }
+    }
+
+    public void Die()
+    {
+        hp = 100f;
+    }
+
+    public void GetPoisoned(float poisonAmount)
+    {
+        poisonTime = poisonAmount;
+    }
+
+    public void GetDamageByPoison()
+    {
+        if(poisonTime > 0)
+        {
+            poisonTime -= Time.deltaTime;
+            hp -= poisonDamage;
+        }
+    }
+
+    public void KnockBack(bool direction)
+    {
+        if(direction)
+        {
+            rb.AddForce(transform.up * jumpForse, ForceMode2D.Impulse);
+            rb.AddForce(transform.right * jumpForse, ForceMode2D.Impulse);
+        }
+        else
+        {
+            rb.AddForce(transform.up * jumpForse, ForceMode2D.Impulse);
+            rb.AddForce(transform.forward * jumpForse, ForceMode2D.Impulse);
+        }
     }
 }
 
-interface IPlayerState
-{
-    IPlayerState UpdateState(Player player);
-}
-
-class IdlePlayerState : IPlayerState
-{
-    public IPlayerState UpdateState(Player player)
-    {
-        if (Input.GetKey(KeyCode.D)) return new RunningPlayerState();
-        if (Input.GetKey(KeyCode.A)) return new RunningPlayerState();
-        if (Input.GetKeyDown(KeyCode.Space) && player.IsGrounded) return new JumpingPlayerState();
-        if (Input.GetButtonDown("Fire1")) return new AttackingPlayerState();
-        return this;
-    }
-}
-class RunningPlayerState : IPlayerState
-{
-    public IPlayerState UpdateState(Player player)
-    {
-        player.Anim.Play("run_side");
-        if (Input.GetKeyDown(KeyCode.Space) && player.IsGrounded) return new JumpingPlayerState();
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            player.rb.velocity = new Vector2(-player.speed, player.rb.velocity.y);
-            return new RunningPlayerState();
-        }
-        if (Input.GetKey(KeyCode.D))
-        {
-            player.rb.velocity = new Vector2(player.speed, player.rb.velocity.y);
-            return new RunningPlayerState();
-        }
-        
-        return new IdlePlayerState();
-    } 
-}
-class JumpingPlayerState : IPlayerState
-{
-    public IPlayerState UpdateState(Player player)
-    {
-        player.Anim.Play("jump_side");
-        player.rb.AddForce(player.transform.up * player.jumpForse, ForceMode2D.Impulse);
-        return new AirbornePlayerState();
-    }
-}
-class AirbornePlayerState : IPlayerState
-{
-    public IPlayerState UpdateState(Player player)
-    {
-        if(player.IsGrounded) return new IdlePlayerState();
-        if((Input.GetKey(KeyCode.D))) player.rb.velocity = new Vector2(player.speed, player.rb.velocity.y);
-        if (Input.GetKeyDown(KeyCode.A)) player.rb.velocity = new Vector2(-player.speed, player.rb.velocity.y);
-        return new AirbornePlayerState();
-    }
-}
-class AttackingPlayerState : IPlayerState
-{
-    public IPlayerState UpdateState(Player player)
-    {
-        player.Anim.Play("sword_side");
-        return new IdlePlayerState();
-    }
-}

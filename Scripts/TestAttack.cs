@@ -11,24 +11,18 @@ public class TestAttack : MonoBehaviour
     public float TimeBtwAttack;
     private float timer;
 
-    private AnimatorStateInfo stateInfo;
-    Animator anim;
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(AttackPoint.position, AttackRange);
     }
-    public void Start()
-    {
-        anim = GetComponent<Animator>();
-    }
+
     private void Attack()
     {
-        if(!stateInfo.IsName("weapon_sword_side"))
+        if(timer <= 0)
         {
             if(Input.GetButtonDown("Fire1"))
             {
-                anim.SetTrigger("IsAttacking");
                 Collider2D[] enemies = Physics2D.OverlapCircleAll(AttackPoint.position, AttackRange,DamagableLayerMask);
                 if (enemies.Length != 0)
                 {
@@ -38,6 +32,12 @@ public class TestAttack : MonoBehaviour
                     }
                 }
             }
+            
+            timer = 0;
+        }
+        else
+        {
+            timer -= Time.deltaTime;
         }
     }
     private void GetReferences()
@@ -46,11 +46,6 @@ public class TestAttack : MonoBehaviour
     }
     private void Update()
     {
-        stateInfo = anim.GetCurrentAnimatorStateInfo(0);
         Attack();
-    }
-    private void FixedUpdate()
-    {
-        
     }
 }

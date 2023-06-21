@@ -6,11 +6,11 @@ public class EnemyAI : DamagebleObject
 {
     public float speed;
     private TestEnemy TE;
+
     // Start is called before the first frame update
     void Start()
     {
         GetReferences();
-        
     }
 
     // Update is called once per frame
@@ -20,11 +20,10 @@ public class EnemyAI : DamagebleObject
     }
     private void move()
     {
-        TE.Move(speed);
+        TE.LifeCicle(speed);
     }
     private void GetReferences()
     {
         TE = GetComponent<TestEnemy>();
     }
-    
 }
