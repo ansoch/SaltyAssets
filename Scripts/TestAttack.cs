@@ -11,7 +11,10 @@ public class TestAttack : MonoBehaviour
     public float TimeBtwAttack;
     private float timer;
 
+    [SerializeField] private Animator playerAnimator;
+
     private AnimatorStateInfo stateInfo;
+    private AnimatorStateInfo playerStateInfo;
     Animator anim;
     private void OnDrawGizmosSelected()
     {
@@ -24,7 +27,7 @@ public class TestAttack : MonoBehaviour
     }
     private void Attack()
     {
-        if(!stateInfo.IsName("weapon_sword_side"))
+        if(!stateInfo.IsName("weapon_sword_side") && !playerStateInfo.IsName("slide_side"))
         {
             if(Input.GetButtonDown("Fire1"))
             {
@@ -47,6 +50,7 @@ public class TestAttack : MonoBehaviour
     private void Update()
     {
         stateInfo = anim.GetCurrentAnimatorStateInfo(0);
+        playerStateInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
         Attack();
     }
     private void FixedUpdate()

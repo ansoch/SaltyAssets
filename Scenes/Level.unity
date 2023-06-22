@@ -247,7 +247,7 @@ GameObject:
   - component: {fileID: 200590278}
   - component: {fileID: 200590280}
   - component: {fileID: 200590279}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Image
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -336,7 +336,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 267563321}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.67, y: 0.8, z: 0}
+  m_LocalPosition: {x: -0.76, y: 0.8, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -353,7 +353,7 @@ GameObject:
   m_Component:
   - component: {fileID: 456025689}
   - component: {fileID: 456025690}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: UI_Inventory
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5755,7 +5755,7 @@ GameObject:
   - component: {fileID: 662750167}
   - component: {fileID: 662750166}
   - component: {fileID: 662750165}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5857,7 +5857,7 @@ GameObject:
   - component: {fileID: 921264556}
   - component: {fileID: 921264558}
   - component: {fileID: 921264557}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5931,7 +5931,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 998374952}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: UI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5965,7 +5965,7 @@ GameObject:
   - component: {fileID: 1025460588}
   - component: {fileID: 1025460590}
   - component: {fileID: 1025460589}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: border
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6040,7 +6040,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1060136027}
   - component: {fileID: 1060136030}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: ItemSlotTemplate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6150,7 +6150,7 @@ GameObject:
   - component: {fileID: 1092744358}
   - component: {fileID: 1092744360}
   - component: {fileID: 1092744359}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6463,6 +6463,7 @@ MonoBehaviour:
   Damage: 4
   AttackRange: 1
   TimeBtwAttack: 1
+  playerAnimator: {fileID: 1448205963}
 --- !u!212 &1143560375
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -6526,7 +6527,7 @@ GameObject:
   - component: {fileID: 1367759955}
   - component: {fileID: 1367759957}
   - component: {fileID: 1367759956}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6668,7 +6669,7 @@ GameObject:
   - component: {fileID: 1448205963}
   - component: {fileID: 1448205964}
   m_Layer: 0
-  m_Name: Ninja
+  m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6890,6 +6891,7 @@ MonoBehaviour:
   Damage: 4
   AttackRange: 1
   TimeBtwAttack: 1
+  playerAnimator: {fileID: 0}
 --- !u!95 &1448205963
 Animator:
   serializedVersion: 5
@@ -7398,7 +7400,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1831701668}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.03, y: 0.04, z: 0}
+  m_LocalPosition: {x: -0.03, y: -0.038, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7693,7 +7695,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2023958215}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: ItemSlotContainer
   m_TagString: Untagged
   m_Icon: {fileID: 0}

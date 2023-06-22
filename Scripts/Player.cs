@@ -26,7 +26,8 @@ public class Player : MonoBehaviour
 
     private float _facingRight = -1;
 
-    private IPlayerState _playerState = new IdlePlayerState();
+    //private IPlayerState _playerState = new IdlePlayerState();
+
     // Start is called before the first frame update
     void Start()
     {
@@ -37,6 +38,7 @@ public class Player : MonoBehaviour
         inventory = new Inventory();
         uiInventory.SetPlayer(this);
         uiInventory.SetInventory(inventory);
+        //Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("Default"), LayerMask.NameToLayer("Enemy"), true);
     }
 
     private void OnTriggerStay2D(Collider2D collision)
@@ -52,6 +54,11 @@ public class Player : MonoBehaviour
             }
         }
     }
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        
+    }
+
     public Vector3 GetPosition()
     {
         return transform.position;
@@ -68,8 +75,10 @@ public class Player : MonoBehaviour
     {
         AnimatorStateInfo stateInfo = Anim.GetCurrentAnimatorStateInfo(0);
 
-        if (!stateInfo.IsName("sword_side"))
+        if (!stateInfo.IsName("sword_side") && !stateInfo.IsName("slide_side"))
         {
+            Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("Default"), LayerMask.NameToLayer("Enemy"), false);
+
             if (Input.GetKey(KeyCode.D))
             {
                 rb.velocity = new Vector2(speed, rb.velocity.y);
@@ -92,7 +101,17 @@ public class Player : MonoBehaviour
                 rb.velocity = new Vector2(speed*_facingRight*0.75f, rb.velocity.y);
                 Anim.SetTrigger("IsAttacking");
             }
+            if (Input.GetKeyDown(KeyCode.LeftShift)){
+                Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("Default"), LayerMask.NameToLayer("Enemy"), true);
+                rb.velocity = new Vector2(speed * _facingRight * 2f, rb.velocity.y);
+                Anim.SetTrigger("IsSliding");
+                //Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("Default"), LayerMask.NameToLayer("Enemy"), true);
+            }
             Flip();
+        }
+        else 
+        {
+            //Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("Default"), LayerMask.NameToLayer("Enemy"), false);
         }
         //_playerState = _playerState.UpdateState(this);
     }
@@ -103,68 +122,9 @@ public class Player : MonoBehaviour
         Anim.SetBool("IsRunning", Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.A));
         Anim.SetBool("IsGrounded", IsGrounded);
     }
-}
 
-interface IPlayerState
-{
-    IPlayerState UpdateState(Player player);
-}
+    private void Roll()
+    {
 
-class IdlePlayerState : IPlayerState
-{
-    public IPlayerState UpdateState(Player player)
-    {
-        if (Input.GetKey(KeyCode.D)) return new RunningPlayerState();
-        if (Input.GetKey(KeyCode.A)) return new RunningPlayerState();
-        if (Input.GetKeyDown(KeyCode.Space) && player.IsGrounded) return new JumpingPlayerState();
-        if (Input.GetButtonDown("Fire1")) return new AttackingPlayerState();
-        return this;
-    }
-}
-class RunningPlayerState : IPlayerState
-{
-    public IPlayerState UpdateState(Player player)
-    {
-        player.Anim.Play("run_side");
-        if (Input.GetKeyDown(KeyCode.Space) && player.IsGrounded) return new JumpingPlayerState();
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            player.rb.velocity = new Vector2(-player.speed, player.rb.velocity.y);
-            return new RunningPlayerState();
-        }
-        if (Input.GetKey(KeyCode.D))
-        {
-            player.rb.velocity = new Vector2(player.speed, player.rb.velocity.y);
-            return new RunningPlayerState();
-        }
-        
-        return new IdlePlayerState();
-    } 
-}
-class JumpingPlayerState : IPlayerState
-{
-    public IPlayerState UpdateState(Player player)
-    {
-        player.Anim.Play("jump_side");
-        player.rb.AddForce(player.transform.up * player.jumpForse, ForceMode2D.Impulse);
-        return new AirbornePlayerState();
-    }
-}
-class AirbornePlayerState : IPlayerState
-{
-    public IPlayerState UpdateState(Player player)
-    {
-        if(player.IsGrounded) return new IdlePlayerState();
-        if((Input.GetKey(KeyCode.D))) player.rb.velocity = new Vector2(player.speed, player.rb.velocity.y);
-        if (Input.GetKeyDown(KeyCode.A)) player.rb.velocity = new Vector2(-player.speed, player.rb.velocity.y);
-        return new AirbornePlayerState();
-    }
-}
-class AttackingPlayerState : IPlayerState
-{
-    public IPlayerState UpdateState(Player player)
-    {
-        player.Anim.Play("sword_side");
-        return new IdlePlayerState();
     }
 }
