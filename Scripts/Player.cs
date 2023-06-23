@@ -122,13 +122,11 @@ public class Player : MonoBehaviour
     {
         if(direction)
         {
-            rb.AddForce(transform.up * jumpForse, ForceMode2D.Impulse);
-            rb.AddForce(transform.right * jumpForse, ForceMode2D.Impulse);
+            rb.AddForce((Vector2.up + Vector2.right) * jumpForse, ForceMode2D.Impulse);
         }
         else
         {
-            rb.AddForce(transform.up * jumpForse, ForceMode2D.Impulse);
-            rb.AddForce(transform.forward * jumpForse, ForceMode2D.Impulse);
+            rb.AddForce((Vector2.up + Vector2.left) * jumpForse, ForceMode2D.Impulse);
         }
     }
 }

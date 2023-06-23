@@ -2,14 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TestEnemy : Enemy
+public class Bull : Enemy
 {
     private Rigidbody2D rb;
     [SerializeField] private LayerMask playerLayer;
     [SerializeField] private BoxCollider2D boxCollider;
 
     [SerializeField] private Transform groundDetection;
-    [SerializeField] private Transform secGroundDetection;
     [SerializeField] private Transform attackPoint;
 
     [SerializeField] private Transform player;
@@ -18,22 +17,20 @@ public class TestEnemy : Enemy
     [SerializeField] private float high;
     [SerializeField] private float colliderDistance;
 
-    [SerializeField] private float speed = 4;
+    [SerializeField] private float patrolSpeed = 2;
+    [SerializeField] private float huntSpeed = 4;
+    [SerializeField] private float dashSpeed = 10;
 
     [SerializeField] private float rayDistance;
 
     [SerializeField] private float attackRange;
-
-    [SerializeField] private float poisonChance;
-    [SerializeField] private float poisonTime;
+    [SerializeField] private float dashRange;
 
     [SerializeField] private float attackDelay = 1;
     [SerializeField] private float attackCooldown = 0;
 
-    [SerializeField] private float dashDelay = 1;
-    [SerializeField] private float dashCooldown = 0;
-
     [SerializeField] private float hpDamage;
+    [SerializeField] private float dashDamage;
     [SerializeField] private float balanceDamage;
 
     [SerializeField] private bool isDash = true;
@@ -53,20 +50,33 @@ public class TestEnemy : Enemy
 
     void LifeCycle()
     {
-        if(PlayerInSight(playerLayer, boxCollider, range, colliderDistance, high))
+        if (!PlayerInSight(playerLayer, boxCollider, range, colliderDistance, high))
         {
-            if (Mathf.Abs(player.position.x - transform.position.x) >= attackRange)
-            {
-                dashCooldown = DashPursuit(groundDetection, secGroundDetection, player, dashCooldown, dashDelay, rayDistance, rb, speed);
-            }
-            else
-            {
-                attackCooldown = AttackPoison(attackPoint, playerLayer, attackCooldown, attackDelay, attackRange, hpDamage, balanceDamage, poisonChance, poisonTime);
-            }
+            Patrol(groundDetection, rayDistance, rb, patrolSpeed);
         }
         else
         {
-            dashCooldown = DashPatrol(groundDetection, secGroundDetection, dashCooldown, dashDelay, rayDistance, rb, speed);
+            if ((Mathf.Abs(player.position.x - transform.position.x) == dashRange) || (isDash))
+            {
+                attackCooldown = 0;
+                isDash = true;
+                isDash = DashAttack(attackPoint, player, rb, playerLayer, dashSpeed, attackRange, dashDamage);
+            }
+            else
+            {
+                if (!isDash)
+                {
+                    if (Mathf.Abs(player.position.x - transform.position.x) >= attackRange)
+                    {
+                        Pursuit(groundDetection, player, rayDistance, rb, huntSpeed);
+                        attackCooldown = 0;
+                    }
+                    else
+                    {
+                        attackCooldown = Attack(attackPoint, playerLayer, attackCooldown, attackDelay, attackRange, hpDamage, balanceDamage);
+                    }
+                }
+            }
         }
     }
 
