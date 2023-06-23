@@ -53,6 +53,11 @@ public class Player : MonoBehaviour
                 itemWorld.DestroySelf();
             }
         }
+
+        if (collision.CompareTag("Box"))
+        {
+            //heldObject = collision.gameObject;
+        }
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -109,10 +114,6 @@ public class Player : MonoBehaviour
             }
             Flip();
         }
-        else 
-        {
-            //Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("Default"), LayerMask.NameToLayer("Enemy"), false);
-        }
         //_playerState = _playerState.UpdateState(this);
     }
     private void FixedUpdate()
@@ -121,10 +122,5 @@ public class Player : MonoBehaviour
         Anim.SetFloat("SpeedX", Math.Abs(rb.velocity.x));
         Anim.SetBool("IsRunning", Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.A));
         Anim.SetBool("IsGrounded", IsGrounded);
-    }
-
-    private void Roll()
-    {
-
     }
 }
