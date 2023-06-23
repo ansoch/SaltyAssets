@@ -4,31 +4,33 @@ using UnityEngine;
 
 public class Bull : Enemy
 {
-    private Rigidbody2D rb;
-    [SerializeField] private LayerMask playerLayer;
+    [Header("Enemy parametres")]
+    [SerializeField] private Rigidbody2D rb;
     [SerializeField] private BoxCollider2D boxCollider;
-
     [SerializeField] private Transform groundDetection;
     [SerializeField] private Transform attackPoint;
+    [SerializeField] private float scaleX;
 
+    [Header("Enemy parametres")]
+    [SerializeField] private LayerMask playerLayer;
     [SerializeField] private Transform player;
 
+    [Header("Vision parametres")]
     [SerializeField] private float range;
     [SerializeField] private float high;
     [SerializeField] private float colliderDistance;
 
+    [Header("Moving parametres")]
     [SerializeField] private float patrolSpeed = 2;
     [SerializeField] private float huntSpeed = 4;
     [SerializeField] private float dashSpeed = 10;
-
     [SerializeField] private float rayDistance;
 
+    [Header("Attack parametres")]
     [SerializeField] private float attackRange;
     [SerializeField] private float dashRange;
-
     [SerializeField] private float attackDelay = 1;
     [SerializeField] private float attackCooldown = 0;
-
     [SerializeField] private float hpDamage;
     [SerializeField] private float dashDamage;
     [SerializeField] private float balanceDamage;
@@ -41,6 +43,7 @@ public class Bull : Enemy
     private void GetReferences()
     {
         rb = GetComponent<Rigidbody2D>();
+        scaleX = transform.localScale.x;
     }
 
     void Update()
@@ -52,7 +55,7 @@ public class Bull : Enemy
     {
         if (!PlayerInSight(playerLayer, boxCollider, range, colliderDistance, high))
         {
-            Patrol(groundDetection, rayDistance, rb, patrolSpeed);
+            Patrol(groundDetection, rayDistance, rb, patrolSpeed, scaleX);
         }
         else
         {
@@ -60,7 +63,7 @@ public class Bull : Enemy
             {
                 attackCooldown = 0;
                 isDash = true;
-                isDash = DashAttack(attackPoint, player, rb, playerLayer, dashSpeed, attackRange, dashDamage);
+                isDash = DashAttack(attackPoint, player, rb, playerLayer, dashSpeed, attackRange, dashDamage, scaleX);
             }
             else
             {
@@ -68,12 +71,12 @@ public class Bull : Enemy
                 {
                     if (Mathf.Abs(player.position.x - transform.position.x) >= attackRange)
                     {
-                        Pursuit(groundDetection, player, rayDistance, rb, huntSpeed);
+                        Pursuit(groundDetection, player, rayDistance, rb, huntSpeed, scaleX);
                         attackCooldown = 0;
                     }
                     else
                     {
-                        attackCooldown = Attack(attackPoint, playerLayer, attackCooldown, attackDelay, attackRange, hpDamage, balanceDamage);
+                        attackCooldown = Attack(attackPoint, playerLayer, player, attackCooldown, attackDelay, attackRange, hpDamage, balanceDamage, scaleX);
                     }
                 }
             }

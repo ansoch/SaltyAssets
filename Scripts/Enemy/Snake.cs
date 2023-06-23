@@ -4,35 +4,35 @@ using UnityEngine;
 
 public class Snake : Enemy
 {
-    private Rigidbody2D rb;
-    [SerializeField] private LayerMask playerLayer;
+    [Header("Enemy parametres")]
+    [SerializeField] private Rigidbody2D rb;
     [SerializeField] private BoxCollider2D boxCollider;
-
     [SerializeField] private Transform groundDetection;
     [SerializeField] private Transform attackPoint;
+    [SerializeField] private float scaleX;
 
+    [Header("Enemy parametres")]
+    [SerializeField] private LayerMask playerLayer;
     [SerializeField] private Transform player;
 
+    [Header("Vision parametres")]
     [SerializeField] private float range;
     [SerializeField] private float high;
     [SerializeField] private float colliderDistance;
 
+    [Header("Moving parametres")]
     [SerializeField] private float huntSpeed = 4;
-
     [SerializeField] private float rayDistance;
 
+    [Header("Attack parametres")]
     [SerializeField] private float attackRange;
-
     [SerializeField] private float poisonChance;
     [SerializeField] private float poisonTime;
-
     [SerializeField] private float attackDelay = 1;
     [SerializeField] private float attackCooldown = 0;
-
     [SerializeField] private float hpDamage;
     [SerializeField] private float balanceDamage;
 
-    [SerializeField] private bool isDash = true;
     public void Start()
     {
         GetReferences();
@@ -40,6 +40,7 @@ public class Snake : Enemy
     private void GetReferences()
     {
         rb = GetComponent<Rigidbody2D>();
+        scaleX = transform.localScale.x;
     }
 
     void Update()
@@ -53,11 +54,11 @@ public class Snake : Enemy
         {
             if (Mathf.Abs(player.position.x - transform.position.x) >= attackRange)
             {
-                Pursuit(groundDetection, player, rayDistance, rb, huntSpeed);
+                Pursuit(groundDetection, player, rayDistance, rb, huntSpeed, scaleX);
             }
             else
             {
-                attackCooldown = AttackPoison(attackPoint, playerLayer, attackCooldown, attackDelay, attackRange, hpDamage, balanceDamage, poisonChance, poisonTime);
+                attackCooldown = AttackPoison(attackPoint, playerLayer, player, attackCooldown, attackDelay, attackRange, hpDamage, balanceDamage, poisonChance, poisonTime, scaleX);
             }
         }
         else

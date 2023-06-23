@@ -4,39 +4,39 @@ using UnityEngine;
 
 public class Slime : Enemy
 {
-    private Rigidbody2D rb;
-    [SerializeField] private LayerMask playerLayer;
+    [Header("Enemy parametres")]
+    [SerializeField] private Rigidbody2D rb;
     [SerializeField] private BoxCollider2D boxCollider;
-
     [SerializeField] private Transform groundDetection;
     [SerializeField] private Transform secGroundDetection;
     [SerializeField] private Transform attackPoint;
+    [SerializeField] private float scaleX;
 
+    [Header("Enemy parametres")]
+    [SerializeField] private LayerMask playerLayer;
     [SerializeField] private Transform player;
 
+    [Header("Vision parametres")]
     [SerializeField] private float range;
     [SerializeField] private float high;
     [SerializeField] private float colliderDistance;
 
+    [Header("Moving parametres")]
     [SerializeField] private float speed = 4;
-
     [SerializeField] private float rayDistance;
-
-    [SerializeField] private float attackRange;
-
-    [SerializeField] private float poisonChance;
-    [SerializeField] private float poisonTime;
-
-    [SerializeField] private float attackDelay = 1;
-    [SerializeField] private float attackCooldown = 0;
-
     [SerializeField] private float dashDelay = 1;
     [SerializeField] private float dashCooldown = 0;
 
+    [Header("Attack parametres")]
+    [SerializeField] private float attackRange;
+    [SerializeField] private float attackDelay = 1;
+    [SerializeField] private float attackCooldown = 0;
     [SerializeField] private float hpDamage;
     [SerializeField] private float balanceDamage;
 
-    [SerializeField] private bool isDash = true;
+    [Header("Animation")]
+    [SerializeField] private Animator anim;
+
     public void Start()
     {
         GetReferences();
@@ -44,6 +44,7 @@ public class Slime : Enemy
     private void GetReferences()
     {
         rb = GetComponent<Rigidbody2D>();
+        scaleX = transform.localScale.x;
     }
 
     void Update()
@@ -57,16 +58,19 @@ public class Slime : Enemy
         {
             if (Mathf.Abs(player.position.x - transform.position.x) >= attackRange)
             {
-                dashCooldown = DashPursuit(groundDetection, secGroundDetection, player, dashCooldown, dashDelay, rayDistance, rb, speed);
+                anim.SetBool("isAttack", false);
+                dashCooldown = DashPursuit(groundDetection, secGroundDetection, player, dashCooldown, dashDelay, rayDistance, rb, speed, scaleX);
             }
             else
             {
-                attackCooldown = AttackPoison(attackPoint, playerLayer, attackCooldown, attackDelay, attackRange, hpDamage, balanceDamage, poisonChance, poisonTime);
+                anim.SetBool("isAttack", true);
+                attackCooldown = Attack(attackPoint, playerLayer, player, attackCooldown, attackDelay, attackRange, hpDamage, balanceDamage, scaleX);
             }
         }
         else
         {
-            dashCooldown = DashPatrol(groundDetection, secGroundDetection, dashCooldown, dashDelay, rayDistance, rb, speed);
+            anim.SetBool("isAttack", false);
+            dashCooldown = DashPatrol(groundDetection, secGroundDetection, dashCooldown, dashDelay, rayDistance, rb, speed, scaleX);
         }
     }
 

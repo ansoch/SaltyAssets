@@ -5,7 +5,7 @@ using UnityEngine;
 public class Enemy : MonoBehaviour
 {
     [SerializeField] private bool movingRight = true;
-    public void Patrol(Transform groundDetection, float distance, Rigidbody2D rb, float speed)
+    public void Patrol(Transform groundDetection, float distance, Rigidbody2D rb, float speed, float scaleX)
     {
         RaycastHit2D groundInfo = Physics2D.Raycast(groundDetection.position, Vector2.down, distance);
 
@@ -16,19 +16,19 @@ public class Enemy : MonoBehaviour
 
         if (movingRight)
         {
-            transform.localScale = new Vector2(-1, 1);
+            transform.localScale = new Vector2(scaleX * -1, transform.localScale.y);
             Vector2 HW = new Vector2(-speed, rb.velocity.y);
             rb.velocity = HW;
         }
         else
         {
-            transform.localScale = new Vector2(1, 1);
+            transform.localScale = new Vector2(scaleX, transform.localScale.y);
             Vector2 HW = new Vector2(speed, rb.velocity.y);
             rb.velocity = HW;
         }
     }
 
-    public float DashPatrol(Transform groundDetection, Transform secGroundDetection, float dashCooldown, float dashDelay, float distance, Rigidbody2D rb, float speed)
+    public float DashPatrol(Transform groundDetection, Transform secGroundDetection, float dashCooldown, float dashDelay, float distance, Rigidbody2D rb, float speed, float scaleX)
     {
         RaycastHit2D groundInfo = Physics2D.Raycast(groundDetection.position, Vector2.down, distance);
         RaycastHit2D secGroundInfo = Physics2D.Raycast(secGroundDetection.position, Vector2.down, distance);
@@ -42,12 +42,12 @@ public class Enemy : MonoBehaviour
         {
             if (movingRight)
             {
-                transform.localScale = new Vector2(-1, 1);
+                transform.localScale = new Vector2(scaleX * -1, transform.localScale.y);
                 rb.AddForce(Vector2.left * speed);
             }
             else
             {
-                transform.localScale = new Vector2(1, 1);
+                transform.localScale = new Vector2(scaleX, transform.localScale.y);
                 rb.AddForce(Vector2.right * speed);
             }
             dashCooldown = dashDelay;
@@ -59,7 +59,7 @@ public class Enemy : MonoBehaviour
         return dashCooldown;
     }
 
-    public void Pursuit(Transform groundDetection, Transform player, float distance, Rigidbody2D rb, float speed)
+    public void Pursuit(Transform groundDetection, Transform player, float distance, Rigidbody2D rb, float speed, float scaleX)
     {
         RaycastHit2D groundInfo = Physics2D.Raycast(groundDetection.position, Vector2.down, distance);
 
@@ -67,20 +67,20 @@ public class Enemy : MonoBehaviour
         {
             if (player.position.x < transform.position.x)
             {
-                transform.localScale = new Vector2(-1, 1);
+                transform.localScale = new Vector2(scaleX * -1, transform.localScale.y);
                 Vector2 HW = new Vector2(-speed, rb.velocity.y);
                 rb.velocity = HW;
             }
             else
             {
-                transform.localScale = new Vector2(1, 1);
+                transform.localScale = new Vector2(scaleX, transform.localScale.y);
                 Vector2 HW = new Vector2(speed, rb.velocity.y);
                 rb.velocity = HW;
             }
         }
     }
 
-    public float DashPursuit(Transform groundDetection, Transform secGroundDetection, Transform player, float dashCooldown, float dashDelay, float distance, Rigidbody2D rb, float speed)
+    public float DashPursuit(Transform groundDetection, Transform secGroundDetection, Transform player, float dashCooldown, float dashDelay, float distance, Rigidbody2D rb, float speed, float scaleX)
     {
         RaycastHit2D groundInfo = Physics2D.Raycast(groundDetection.position, Vector2.down, distance);
         RaycastHit2D secGroundInfo = Physics2D.Raycast(secGroundDetection.position, Vector2.down, distance);
@@ -91,12 +91,12 @@ public class Enemy : MonoBehaviour
             {
                 if (player.position.x < transform.position.x)
                 {
-                    transform.localScale = new Vector2(-1, 1);
+                    transform.localScale = new Vector2(scaleX * -1, transform.localScale.y);
                     rb.AddForce(Vector2.left * speed);
                 }
                 else
                 {
-                    transform.localScale = new Vector2(1, 1);
+                    transform.localScale = new Vector2(scaleX, transform.localScale.y);
                     rb.AddForce(Vector2.right * speed);
                 }
                 dashCooldown = dashDelay;
@@ -109,8 +109,16 @@ public class Enemy : MonoBehaviour
         return dashCooldown;
     }
 
-    public float Attack(Transform attackPoint, LayerMask playerLayer, float attackCooldown, float attackDelay, float attackRange, float hpDamage, float balanceDamage)
+    public float Attack(Transform attackPoint, LayerMask playerLayer, Transform player, float attackCooldown, float attackDelay, float attackRange, float hpDamage, float balanceDamage, float scaleX)
     {
+        if (player.position.x < transform.position.x)
+        {
+            transform.localScale = new Vector2(scaleX * -1, transform.localScale.y);
+        }
+        else
+        {
+            transform.localScale = new Vector2(scaleX, transform.localScale.y);
+        }
         if (attackCooldown <= 0)
         {
             Collider2D[] hitPlayer = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, playerLayer);
@@ -130,8 +138,16 @@ public class Enemy : MonoBehaviour
         return attackCooldown;
     }
 
-    public float AttackPoison(Transform attackPoint, LayerMask playerLayer, float attackCooldown, float attackDelay, float attackRange, float hpDamage, float balanceDamage, float poisonChanse, float poisonTime)
+    public float AttackPoison(Transform attackPoint, LayerMask playerLayer, Transform player, float attackCooldown, float attackDelay, float attackRange, float hpDamage, float balanceDamage, float poisonChanse, float poisonTime, float scaleX)
     {
+        if (player.position.x < transform.position.x)
+        {
+            transform.localScale = new Vector2(scaleX * -1, transform.localScale.y);
+        }
+        else
+        {
+            transform.localScale = new Vector2(scaleX, transform.localScale.y);
+        }
         if (attackCooldown <= 0)
         {
             Collider2D[] hitPlayer = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, playerLayer);
@@ -156,8 +172,16 @@ public class Enemy : MonoBehaviour
         return attackCooldown;
     }
 
-    public Vector2 AttackLightAndHeavy(Transform attackPoint, LayerMask playerLayer, Transform player, float attackCooldown, float strongAttackCooldown, float weakAttackDelay, float strongAttackDelay, float attackRange, float weakHpDamage, float strongHpDamage,  float weakBalanceDamage, float strongBalanceDamage)
+    public Vector2 AttackLightAndHeavy(Transform attackPoint, LayerMask playerLayer, Transform player, float attackCooldown, float strongAttackCooldown, float weakAttackDelay, float strongAttackDelay, float attackRange, float weakHpDamage, float strongHpDamage,  float weakBalanceDamage, float strongBalanceDamage, float scaleX)
     {
+        if (player.position.x < transform.position.x)
+        {
+            transform.localScale = new Vector2(scaleX * -1, transform.localScale.y);
+        }
+        else
+        {
+            transform.localScale = new Vector2(scaleX, transform.localScale.y);
+        }
         if (attackCooldown <= 0)
         {
             Collider2D[] hitPlayer = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, playerLayer);
@@ -199,19 +223,19 @@ public class Enemy : MonoBehaviour
         return ret;
     }
 
-    public bool DashAttack(Transform attackPoint, Transform player, Rigidbody2D rb, LayerMask playerLayer, float speed, float attackRange, float hpDamage)
+    public bool DashAttack(Transform attackPoint, Transform player, Rigidbody2D rb, LayerMask playerLayer, float speed, float attackRange, float hpDamage, float scaleX)
     {
         if(Mathf.Abs(player.position.x - transform.position.x) >= attackRange)
         {
             if (player.position.x < transform.position.x)
             {
-                transform.localScale = new Vector2(-1, 1);
+                transform.localScale = new Vector2(scaleX * -1, transform.localScale.y);
                 Vector2 HW = new Vector2(-speed, rb.velocity.y);
                 rb.velocity = HW;
             }
             else
             {
-                transform.localScale = new Vector2(1, 1);
+                transform.localScale = new Vector2(scaleX, transform.localScale.y);
                 Vector2 HW = new Vector2(speed, rb.velocity.y);
                 rb.velocity = HW;
             }
