@@ -9,6 +9,7 @@ public class Slime : Enemy
     [SerializeField] private BoxCollider2D boxCollider;
     [SerializeField] private Transform groundDetection;
     [SerializeField] private Transform secGroundDetection;
+    [SerializeField] private Transform wallDetection;
     [SerializeField] private Transform attackPoint;
     [SerializeField] private float scaleX;
 
@@ -70,7 +71,7 @@ public class Slime : Enemy
         else
         {
             anim.SetBool("isAttack", false);
-            dashCooldown = DashPatrol(groundDetection, secGroundDetection, dashCooldown, dashDelay, rayDistance, rb, speed, scaleX);
+            dashCooldown = DashPatrol(groundDetection, secGroundDetection, wallDetection, dashCooldown, dashDelay, rayDistance, rb, speed, scaleX);
         }
     }
 

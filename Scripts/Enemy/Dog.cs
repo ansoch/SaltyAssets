@@ -8,6 +8,7 @@ public class Dog : Enemy
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private BoxCollider2D boxCollider;
     [SerializeField] private Transform groundDetection;
+    [SerializeField] private Transform wallDetection;
     [SerializeField] private Transform attackPoint;
     [SerializeField] private float scaleX;
 
@@ -32,6 +33,9 @@ public class Dog : Enemy
     [SerializeField] private float hpDamage;
     [SerializeField] private float balanceDamage;
 
+    [Header("Animation")]
+    [SerializeField] private Animator anim;
+
     public void Start()
     {
         GetReferences();
@@ -51,17 +55,19 @@ public class Dog : Enemy
     {
         if (!PlayerInSight(playerLayer, boxCollider, range, colliderDistance, high))
         {
-            Patrol(groundDetection, rayDistance, rb, patrolSpeed, scaleX);
+            anim.SetBool("Attack", false);
+            Patrol(groundDetection, wallDetection, rayDistance, rb, patrolSpeed, scaleX);
         }
         else
         {
             if (Mathf.Abs(player.position.x - transform.position.x) >= attackRange)
             {
-                attackCooldown = 0;
+                anim.SetBool("Attack", false);
                 Pursuit(groundDetection, player, rayDistance, rb, runSpeed, scaleX);
             }
             else
             {
+                anim.SetBool("Attack", true);
                 attackCooldown = Attack(attackPoint, playerLayer, player, attackCooldown, attackDelay, attackRange, hpDamage, balanceDamage, scaleX);
             }
         }

@@ -33,6 +33,9 @@ public class Snake : Enemy
     [SerializeField] private float hpDamage;
     [SerializeField] private float balanceDamage;
 
+    [Header("Animation")]
+    [SerializeField] private Animator anim;
+
     public void Start()
     {
         GetReferences();
@@ -52,12 +55,15 @@ public class Snake : Enemy
     {
         if (PlayerInSight(playerLayer, boxCollider, range, colliderDistance, high))
         {
+            anim.SetBool("Attack", false);
             if (Mathf.Abs(player.position.x - transform.position.x) >= attackRange)
             {
+                anim.SetBool("Attack", false);
                 Pursuit(groundDetection, player, rayDistance, rb, huntSpeed, scaleX);
             }
             else
             {
+                anim.SetBool("Attack", true);
                 attackCooldown = AttackPoison(attackPoint, playerLayer, player, attackCooldown, attackDelay, attackRange, hpDamage, balanceDamage, poisonChance, poisonTime, scaleX);
             }
         }
@@ -69,7 +75,7 @@ public class Snake : Enemy
 
     public void Sleep()
     {
-
+        anim.SetBool("Attack", false);
     }
 
     public void OnDrawGizmos()

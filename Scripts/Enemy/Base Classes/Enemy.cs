@@ -5,11 +5,21 @@ using UnityEngine;
 public class Enemy : MonoBehaviour
 {
     [SerializeField] private bool movingRight = true;
-    public void Patrol(Transform groundDetection, float distance, Rigidbody2D rb, float speed, float scaleX)
+
+    public void Patrol(Transform groundDetection, Transform wallDetection, float distance, Rigidbody2D rb, float speed, float scaleX)
     {
         RaycastHit2D groundInfo = Physics2D.Raycast(groundDetection.position, Vector2.down, distance);
+        RaycastHit2D wallInfo;
+        if(movingRight)
+        {
+            wallInfo = Physics2D.Raycast(wallDetection.position, Vector2.left, distance);
+        }
+        else
+        {
+            wallInfo = Physics2D.Raycast(wallDetection.position, Vector2.right, distance);
+        }
 
-        if (groundInfo.collider == false)
+        if ((groundInfo.collider == false)||(wallInfo.collider == true))
         {
             movingRight = !movingRight;
         }
@@ -28,26 +38,43 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    public float DashPatrol(Transform groundDetection, Transform secGroundDetection, float dashCooldown, float dashDelay, float distance, Rigidbody2D rb, float speed, float scaleX)
+    public float DashPatrol(Transform groundDetection, Transform secGroundDetection, Transform wallDetection, float dashCooldown, float dashDelay, float distance, Rigidbody2D rb, float speed, float scaleX)
     {
         RaycastHit2D groundInfo = Physics2D.Raycast(groundDetection.position, Vector2.down, distance);
         RaycastHit2D secGroundInfo = Physics2D.Raycast(secGroundDetection.position, Vector2.down, distance);
 
-        if ((groundInfo.collider == false)|| (secGroundInfo.collider == false))
+        RaycastHit2D wallInfo;
+        if (movingRight)
+        {
+            wallInfo = Physics2D.Raycast(wallDetection.position, Vector2.left, distance);
+        }
+        else
+        {
+            wallInfo = Physics2D.Raycast(wallDetection.position, Vector2.right, distance);
+        }
+
+        if ((groundInfo.collider == false)|| (secGroundInfo.collider == false) || (wallInfo == true))
         {
             movingRight = !movingRight;
         }
 
-        if(dashCooldown <= 0)
+        if (movingRight)
+        {
+            transform.localScale = new Vector2(scaleX * -1, transform.localScale.y);
+        }
+        else
+        {
+            transform.localScale = new Vector2(scaleX, transform.localScale.y);
+        }
+
+        if (dashCooldown <= 0)
         {
             if (movingRight)
             {
-                transform.localScale = new Vector2(scaleX * -1, transform.localScale.y);
                 rb.AddForce(Vector2.left * speed);
             }
             else
             {
-                transform.localScale = new Vector2(scaleX, transform.localScale.y);
                 rb.AddForce(Vector2.right * speed);
             }
             dashCooldown = dashDelay;
@@ -114,10 +141,12 @@ public class Enemy : MonoBehaviour
         if (player.position.x < transform.position.x)
         {
             transform.localScale = new Vector2(scaleX * -1, transform.localScale.y);
+            movingRight = false;
         }
         else
         {
             transform.localScale = new Vector2(scaleX, transform.localScale.y);
+            movingRight = true;
         }
         if (attackCooldown <= 0)
         {
@@ -143,10 +172,12 @@ public class Enemy : MonoBehaviour
         if (player.position.x < transform.position.x)
         {
             transform.localScale = new Vector2(scaleX * -1, transform.localScale.y);
+            movingRight = false;
         }
         else
         {
             transform.localScale = new Vector2(scaleX, transform.localScale.y);
+            movingRight = true;
         }
         if (attackCooldown <= 0)
         {
@@ -177,10 +208,12 @@ public class Enemy : MonoBehaviour
         if (player.position.x < transform.position.x)
         {
             transform.localScale = new Vector2(scaleX * -1, transform.localScale.y);
+            movingRight = false;
         }
         else
         {
             transform.localScale = new Vector2(scaleX, transform.localScale.y);
+            movingRight = true;
         }
         if (attackCooldown <= 0)
         {
@@ -255,33 +288,91 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    /*
-    Transform firepoint;
-    GameObject[] projectiles;
-
-    public float RangedAtack(GameObject[] projectiles, float cooldown)
+    public void TurnAround()
     {
-        if(cooldown <= 0)
+        transform.localScale = new Vector2(transform.localScale.x * -1, transform.localScale.y);
+    }
+
+    public void Shot(GameObject bullet, Transform shotPoint)
+    {
+        if(!movingRight)
         {
-            projectiles[FindRangedTile(projectiles)].transform.position = firepoint.position;
-            projectiles[FindRangedTile(projectiles)].GetComponent<EnemyProjectile>().ActivateProjectile();
+            Instantiate(bullet, shotPoint.position, new Quaternion(0, 1, 0, 0));
+        }
+        else
+        {
+            Instantiate(bullet, shotPoint.position, new Quaternion(0, 0, 0, 0));
+        }
+    }
+
+    public float Fire(GameObject bullet, Transform shotPoint, Transform player, float cooldown, float delay, float scaleX)
+    {
+        if (player.position.x < transform.position.x)
+        {
+            transform.localScale = new Vector2(scaleX * -1, transform.localScale.y);
+            movingRight = false;
+        }
+        else
+        {
+            transform.localScale = new Vector2(scaleX, transform.localScale.y);
+            movingRight = true;
+        }
+
+        if (cooldown <= 0)
+        {
+            Shot(bullet, shotPoint);
+            cooldown = delay;
         }
         else
         {
             cooldown -= Time.deltaTime;
         }
+
         return cooldown;
     }
-    */
 
-    private int FindRangedTile(GameObject[] projectiles)
+    public Vector3 Burst(GameObject bullet, Transform shotPoint, Transform player, float burstCooldown, float burstDelay, float shotCooldown, float shotDelay, float remainingShots, float numOfShots, float scaleX)
     {
-        for(int i = 0; i < projectiles.Length; ++i)
+        if (player.position.x < transform.position.x)
         {
-            if (!projectiles[i].activeInHierarchy)
-                return i;
+            transform.localScale = new Vector2(scaleX * -1, transform.localScale.y);
+            movingRight = false;
         }
-        return 0;
+        else
+        {
+            transform.localScale = new Vector2(scaleX, transform.localScale.y);
+            movingRight = true;
+        }
+
+        if(burstCooldown <= 0)
+        {
+            if (remainingShots > 0)
+            {
+                if(shotCooldown <= 0)
+                {
+                    remainingShots -= 1;
+                    Shot(bullet, shotPoint);
+                    shotCooldown = shotDelay;
+                }
+                else
+                {
+                    shotCooldown -= Time.deltaTime;
+                }
+            }
+            else
+            {
+                remainingShots = numOfShots;
+                shotCooldown = 0;
+                burstCooldown = burstDelay;
+            }
+        }
+        else
+        {
+            burstCooldown -= Time.deltaTime;
+        }
+
+        Vector3 ret = new(burstCooldown, shotCooldown, remainingShots);
+        return ret;
     }
 
     public bool PlayerInSight(LayerMask playerLayer, BoxCollider2D boxCollider, float range, float colliderDistance, float high)
@@ -291,5 +382,17 @@ public class Enemy : MonoBehaviour
             0,
             Vector2.left, 0, playerLayer);
         return hit.collider != null;
+    }
+
+    public void Punch(Transform attackPoint, LayerMask playerLayer, float attackRange, float hpDamage, float balanceDamage)
+    {
+        Collider2D[] hitPlayer = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, playerLayer);
+        if (hitPlayer.Length != 0)
+        {
+            for (int i = 0; i < hitPlayer.Length; ++i)
+            {
+                hitPlayer[i].GetComponent<Player>().TakeDamage(hpDamage, balanceDamage);
+            }
+        }
     }
 }

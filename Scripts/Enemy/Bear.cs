@@ -8,6 +8,7 @@ public class Bear : Enemy
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private BoxCollider2D boxCollider;
     [SerializeField] private Transform groundDetection;
+    [SerializeField] private Transform wallDetection;
     [SerializeField] private Transform attackPoint;
     [SerializeField] private float scaleX;
 
@@ -54,7 +55,7 @@ public class Bear : Enemy
     {
         if (!PlayerInSight(playerLayer, boxCollider, range, colliderDistance, high))
         {
-            Patrol(groundDetection, rayDistance, rb, patrolSpeed, scaleX);
+            Patrol(groundDetection, wallDetection, rayDistance, rb, patrolSpeed, scaleX);
         }
         else
         {
